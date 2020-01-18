@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 
 void main() => runApp(MyApp());
 
+
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
@@ -22,12 +23,17 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  GoogleMapController mapController;
 
-  static final CameraPosition _kGooglePlex = CameraPosition(
+  GoogleMapController mapController;
+  bool marked = true;
+  final Set<Marker> _markers = {};
+
+  static final CameraPosition indore = CameraPosition(
     target: LatLng(22.7196, 75.8577),
     zoom: 14.4746,
   );
+
+  LatLng lastCameraPosition = indore.target;
   String searchAddr;
 
   @override
@@ -41,53 +47,62 @@ class _MyHomePageState extends State<MyHomePage> {
         body: Stack(
           children: <Widget>[
             GoogleMap(
+              markers: _markers,
+              onCameraMove: _onCameraMove,
               onMapCreated: onMapCreated,
-              initialCameraPosition: _kGooglePlex,
+              initialCameraPosition:  indore,
             ),
             Positioned(
               top: 30.0,
               right: 15.0,
               left: 15.0,
               child: Container(
-                height: 50.0,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.0), color: Colors.white),
-                child: TextField(
-                  decoration: InputDecoration(
-                      hintText: 'Enter Address',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
-                      suffixIcon: IconButton(
-                          icon: Icon(Icons.search),
-                          onPressed: searchandNavigate,
-                          iconSize: 30.0)),
-                  onChanged: (val) {
-                    setState(() {
-                      searchAddr = val;
-                    });
-                  },
+                  height: 50.0,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0), color: Colors.white),
+                  child: TextField(
+                    decoration: InputDecoration(
+                        hintText: 'Enter Address',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
+                        /*suffixIcon: IconButton(
+                            icon: Icon(Icons.my_location),
+                            onPressed: get_current_location,
+                            iconSize: 30.0)*/),
+                    onChanged: (val) {
+                      setState(() {
+                        searchAddr = val;
+                      });
+                    },
+                  ),
                 ),
-              ),
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Align(
-                alignment: Alignment.bottomCenter,
-                child: new RaisedButton(
-
-                  color: Colors.green,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(25.0))),
-                  elevation: 1.0,
+                alignment: Alignment.bottomRight,
+                child: new FloatingActionButton(
+                  backgroundColor : Colors.red,
                   onPressed: (){},
-                  padding: EdgeInsets.fromLTRB(80, 0, 80, 0),
-                  child: Text("SOS",
-                    style: TextStyle(
-                      fontSize: 40.0,
-                      color: Colors.white,
-                      //decorationThickness: 6.0,
-                    ),),
+                  child: Text("SOS"),
                 ),
+              ),
+            ),
+            Positioned(
+              bottom: 100.0,
+              right : 13.0,
+              child: FloatingActionButton(
+                onPressed: get_current_location,
+                child : Icon(Icons.my_location),
+              ),
+            ),
+            Positioned(
+              bottom: 180.0,
+              right : 13.0,
+              child: FloatingActionButton(
+                onPressed: _onAddMarkerButtonPressed,
+                child : Icon(Icons.add_location),
               ),
             ),
           ],
@@ -103,9 +118,49 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  get_current_location() async{
+    var currentLocation = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+    debugPrint("Current Location" + currentLocation.toString());
+    mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+      target: LatLng(currentLocation.latitude, currentLocation.longitude),
+      zoom : 20.0,
+    )));
+  }
+
+  _onCameraMove(CameraPosition position){
+    lastCameraPosition = position.target;
+    debugPrint(lastCameraPosition.toString());
+  }
+
+
   void onMapCreated(controller) {
     setState(() {
       mapController = controller;
     });
   }
+
+  void _onAddMarkerButtonPressed() {
+    marked = !marked;
+    setState(() {
+      if(!marked){
+        _markers.add(Marker(
+          // This marker id can be anything that uniquely identifies each marker.
+          markerId: MarkerId(lastCameraPosition.toString()),
+          position: lastCameraPosition,
+          infoWindow: InfoWindow(
+            title: 'User Name',
+            snippet: 'Crime Report Here',
+          ),
+          icon: BitmapDescriptor.defaultMarkerWithHue(20.0),
+        ));
+      }
+      if(marked){
+        _markers.clear();
+      }
+    });
+  }
 }
+
+
+
