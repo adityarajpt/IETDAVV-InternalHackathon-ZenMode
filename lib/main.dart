@@ -11,7 +11,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "InstaCop",
       debugShowCheckedModeBanner: false,
-      home: MyHomePage(),
+      theme: ThemeData(
+        primarySwatch: Colors.blueGrey,
+      ),
+      home: LoginPage(),
+      routes: {
+        '/map': (_) => MyHomePage(),
+      },
     );
   }
 }
@@ -39,7 +45,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("InstaCop"),
-        backgroundColor: Colors.blueGrey,
       ),
       drawer: Drawer(),
       body: Stack(
