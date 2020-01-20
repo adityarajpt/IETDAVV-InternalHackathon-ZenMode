@@ -9,6 +9,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: "InstaCop",
       debugShowCheckedModeBanner: false,
       home: MyHomePage(),
     );
@@ -36,84 +37,89 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("InstaCop"),
-          backgroundColor: Colors.blueGrey,
-        ),
-        drawer: Drawer(),
-        body: Stack(
-          children: <Widget>[
-            GoogleMap(
-              markers: _markers,
-              onCameraMove: _onCameraMove,
-              onMapCreated: onMapCreated,
-              initialCameraPosition: indore,
-            ),
-            Positioned(
-              top: 30.0,
-              right: 15.0,
-              left: 15.0,
-              child: Container(
-                height: 50.0,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.0),
-                    color: Colors.white),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Enter Address',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
-                    /*suffixIcon: IconButton(
-                            icon: Icon(Icons.my_location),
-                            onPressed: get_current_location,
-                            iconSize: 30.0)*/
-                  ),
-                  onChanged: (val) {
-                    setState(() {
-                      searchAddr = val;
-                    });
-                  },
+      appBar: AppBar(
+        title: Text("InstaCop"),
+        backgroundColor: Colors.blueGrey,
+      ),
+      drawer: Drawer(),
+      body: Stack(
+        children: <Widget>[
+          GoogleMap(
+            markers: _markers,
+            onCameraMove: _onCameraMove,
+            onMapCreated: onMapCreated,
+            initialCameraPosition: indore,
+          ),
+          Positioned(
+            top: 30.0,
+            right: 15.0,
+            left: 15.0,
+            child: Container(
+              height: 50.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                color: Colors.white,
+              ),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Enter Address',
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
                 ),
+                onChanged: (val) {
+                  setState(() {
+                    searchAddr = val;
+                  });
+                },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Align(
-                alignment: Alignment.bottomRight,
-                child: new FloatingActionButton(
-                  backgroundColor: Colors.red,
-                  onPressed: () {},
-                  child: Text("SOS"),
-                ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Align(
+              alignment: Alignment.bottomRight,
+              child: new FloatingActionButton(
+                backgroundColor: Colors.red,
+                onPressed: () {},
+                child: Text("SOS"),
               ),
             ),
-            Positioned(
-              bottom: 100.0,
-              right: 13.0,
-              child: FloatingActionButton(
-                onPressed: getCurrentLocation,
-                child: Icon(Icons.my_location),
-              ),
+          ),
+          Positioned(
+            bottom: 100.0,
+            right: 13.0,
+            child: FloatingActionButton(
+              onPressed: getCurrentLocation,
+              child: Icon(Icons.my_location),
             ),
-            Positioned(
-              bottom: 180.0,
-              right: 13.0,
-              child: FloatingActionButton(
-                onPressed: _onAddMarkerButtonPressed,
-                child: Icon(Icons.add_location),
-              ),
+          ),
+          Positioned(
+            bottom: 180.0,
+            right: 13.0,
+            child: FloatingActionButton(
+              onPressed: _onAddMarkerButtonPressed,
+              child: Icon(Icons.add_location),
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 
   searchandNavigate() {
     Geolocator().placemarkFromAddress(searchAddr).then((result) {
-      mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target:
-              LatLng(result[0].position.latitude, result[0].position.longitude),
-          zoom: 10.0)));
+      mapController.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(
+              result[0].position.latitude,
+              result[0].position.longitude,
+            ),
+            zoom: 10.0,
+          ),
+        ),
+      );
     });
   }
 
@@ -121,10 +127,14 @@ class _MyHomePageState extends State<MyHomePage> {
     var currentLocation = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
     debugPrint("Current Location" + currentLocation.toString());
-    mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-      target: LatLng(currentLocation.latitude, currentLocation.longitude),
-      zoom: 20.0,
-    )));
+    mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(currentLocation.latitude, currentLocation.longitude),
+          zoom: 20.0,
+        ),
+      ),
+    );
   }
 
   _onCameraMove(CameraPosition position) {
@@ -142,16 +152,18 @@ class _MyHomePageState extends State<MyHomePage> {
     marked = !marked;
     setState(() {
       if (!marked) {
-        _markers.add(Marker(
-          // This marker id can be anything that uniquely identifies each marker.
-          markerId: MarkerId(lastCameraPosition.toString()),
-          position: lastCameraPosition,
-          infoWindow: InfoWindow(
-            title: 'User Name',
-            snippet: 'Crime Report Here',
+        _markers.add(
+          Marker(
+            // This marker id can be anything that uniquely identifies each marker.
+            markerId: MarkerId(lastCameraPosition.toString()),
+            position: lastCameraPosition,
+            infoWindow: InfoWindow(
+              title: 'User Name',
+              snippet: 'Crime Report Here',
+            ),
+            icon: BitmapDescriptor.defaultMarkerWithHue(20.0),
           ),
-          icon: BitmapDescriptor.defaultMarkerWithHue(20.0),
-        ));
+        );
       }
       if (marked) {
         _markers.clear();
