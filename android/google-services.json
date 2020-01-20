@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "584451799968",
+    "firebase_url": "https://sihhackathon.firebaseio.com",
+    "project_id": "sihhackathon",
+    "storage_bucket": "sihhackathon.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:584451799968:android:688fe0cc3db3057aaa82c5",
+        "android_client_info": {
+          "package_name": "raj.imaditya.police_emerg"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "584451799968-fsjg0lsmdk5lgak1a0r2gmk0d2olpjkv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAliKelJo6PxA3OK_9-HDGRZLVz7U3_bzI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "584451799968-fsjg0lsmdk5lgak1a0r2gmk0d2olpjkv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
