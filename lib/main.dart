@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
 import './login_page.dart';
+import './signup_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,8 +17,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      home: LoginPage(),
+      initialRoute: '/signup',
       routes: {
+        '/login': (_) => LoginPage(),
+        '/signup': (_) => SignupPage(),
         '/map': (_) => MyHomePage(),
       },
     );
