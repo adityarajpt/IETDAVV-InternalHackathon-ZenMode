@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 
 import './login_page.dart';
 import './signup_page.dart';
+import './app_drawer.dart';
 
 void main() => runApp(MyApp());
 
@@ -51,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text("InstaCop"),
       ),
-      drawer: Drawer(),
+      drawer: AppDrawer(),
       body: Stack(
         children: <Widget>[
           GoogleMap(
