@@ -1,3 +1,3 @@
 class Domain {
-  final domain = 'tusharsadhwani1.pythonanywhere.com';
+  final domain = 'https://tusharsadhwani1.pythonanywhere.com';
 }

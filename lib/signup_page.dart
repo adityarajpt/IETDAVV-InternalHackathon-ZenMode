@@ -45,7 +45,7 @@ class _SignupPageState extends State<SignupPage> {
       _disableButton = true;
     });
 
-    var domain = Provider.of<Domain>(context).domain;
+    var domain = Provider.of<Domain>(context, listen: false).domain;
     var name = _formData['name'].trim();
     var password = _formData['password'];
     var phoneNumber = _formData['phone_no'].trim();

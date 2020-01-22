@@ -1,7 +1,7 @@
 class Token {
-  var _token = "";
+  int _token;
 
-  String get token {
+  int get token {
     return _token;
   }
 
