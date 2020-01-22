@@ -33,12 +33,15 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _disableButton = true;
     });
-    var domain = Provider.of<Domain>(context).domain;
+    var domain = Provider.of<Domain>(context, listen: false).domain;
     var phoneNumber = _formData['phone_no'].trim();
     var password = _formData['password'];
+    print(phoneNumber);
+    print(password);
+    var url = '$domain/login?phone_no=$phoneNumber&password=$password';
+    print(url);
     try {
-      var response = await http
-          .get('$domain/login?phone_no=$phoneNumber&password=$password');
+      var response = await http.get(url);
       if (response.statusCode != 200) {
         throw ArgumentError(
             "Request returned with status code ${response.statusCode}");
@@ -54,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
         throw ArgumentError("Missing id from response body");
       }
       var userid = data['id'];
-      Provider.of<Token>(context).setToken(userid);
+      Provider.of<Token>(context, listen: false).setToken(userid);
       Navigator.of(context).pushReplacementNamed('/map');
     } catch (e) {
       print(e);
@@ -98,20 +101,24 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'username',
+                  labelText: 'Phone No.',
                 ),
                 textInputAction: TextInputAction.next,
                 onFieldSubmitted: (_) =>
                     FocusScope.of(context).requestFocus(_passwordFocusNode),
                 onSaved: (value) {
-                  _formData['username'] = value;
+                  _formData['phone_no'] = value;
                 },
                 validator: (value) {
-                  if (value.trim().length == 0)
-                    return "username cannot be empty";
-                  if (value.trim().contains(RegExp(r'\W')))
-                    return "No whitespace allowed in username";
-                  return null;
+                  value = value.trim();
+                  var matchGroup = RegExp(r'\d{10}').allMatches(value).toList();
+                  if (matchGroup.length > 0) {
+                    print(matchGroup[0].group(0));
+                    if (matchGroup[0].group(0) != value)
+                      return "Invalid phone number";
+                    return null;
+                  }
+                  return "Invalid phone number";
                 },
               ),
               TextFormField(
@@ -122,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                 obscureText: true,
                 onFieldSubmitted: (_) => _login(context),
                 validator: (value) {
-                  if (value.length < 8) return "Password too short";
+                  if (value.length < 6) return "Password too short";
                   return null;
                 },
                 onSaved: (value) {
