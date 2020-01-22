@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 
 import './login_page.dart';
 import './signup_page.dart';
 import './app_drawer.dart';
+import './providers/domain.dart';
+import './providers/token.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,18 +15,24 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "InstaCop",
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
+    return MultiProvider(
+      providers: [
+        Provider.value(value: Domain()),
+        Provider.value(value: Token())
+      ],
+      child: MaterialApp(
+        title: "InstaCop",
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.blueGrey,
+        ),
+        initialRoute: '/login',
+        routes: {
+          '/login': (_) => LoginPage(),
+          '/signup': (_) => SignupPage(),
+          '/map': (_) => MyHomePage(),
+        },
       ),
-      initialRoute: '/signup',
-      routes: {
-        '/login': (_) => LoginPage(),
-        '/signup': (_) => SignupPage(),
-        '/map': (_) => MyHomePage(),
-      },
     );
   }
 }
@@ -91,6 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Align(
               alignment: Alignment.bottomRight,
               child: new FloatingActionButton(
+                heroTag: "sos",
                 backgroundColor: Colors.red,
                 onPressed: () {},
                 child: Text("SOS"),
@@ -101,6 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
             bottom: 100.0,
             right: 13.0,
             child: FloatingActionButton(
+              heroTag: "gps",
               onPressed: getCurrentLocation,
               child: Icon(Icons.my_location),
             ),
@@ -109,6 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
             bottom: 180.0,
             right: 13.0,
             child: FloatingActionButton(
+              heroTag: "pin",
               onPressed: _onAddMarkerButtonPressed,
               child: Icon(Icons.add_location),
             ),
@@ -137,7 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
   getCurrentLocation() async {
     var currentLocation = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
-    debugPrint("Current Location" + currentLocation.toString());
+    // debugPrint("Current Location" + currentLocation.toString());
     mapController.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
@@ -150,7 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _onCameraMove(CameraPosition position) {
     lastCameraPosition = position.target;
-    debugPrint(lastCameraPosition.toString());
+    // debugPrint(lastCameraPosition.toString());
   }
 
   void onMapCreated(controller) {
