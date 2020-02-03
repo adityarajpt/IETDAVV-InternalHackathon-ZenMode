@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import './login_page.dart';
 import './signup_page.dart';
 import './app_drawer.dart';
+import './sos_bottom_sheet.dart';
 import './providers/domain.dart';
 import './providers/token.dart';
 
@@ -24,7 +25,8 @@ class MyApp extends StatelessWidget {
         title: "InstaCop",
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primarySwatch: Colors.blueGrey,
+          primarySwatch: Colors.teal,
+          // platform: TargetPlatform.iOS,
         ),
         initialRoute: '/login',
         routes: {
@@ -55,77 +57,86 @@ class _MyHomePageState extends State<MyHomePage> {
   LatLng lastCameraPosition = indore.target;
   String searchAddr;
 
+  void _sendSos(context) {
+    Scaffold.of(context).showBottomSheet((ctx) => BottomSheet(
+          builder: (c) => SosBottomSheet(),
+          onClosing: () {},
+        ));
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext _ctx) {
     return Scaffold(
       appBar: AppBar(
         title: Text("InstaCop"),
       ),
       drawer: AppDrawer(),
-      body: Stack(
-        children: <Widget>[
-          GoogleMap(
-            markers: _markers,
-            onCameraMove: _onCameraMove,
-            onMapCreated: onMapCreated,
-            initialCameraPosition: indore,
-          ),
-          Positioned(
-            top: 30.0,
-            right: 15.0,
-            left: 15.0,
-            child: Container(
-              height: 50.0,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                color: Colors.white,
-              ),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Enter Address',
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
+      body: Builder(
+        builder: (context) => Stack(
+          children: <Widget>[
+            GoogleMap(
+              markers: _markers,
+              onCameraMove: _onCameraMove,
+              onMapCreated: onMapCreated,
+              initialCameraPosition: indore,
+            ),
+            Positioned(
+              top: 30.0,
+              right: 15.0,
+              left: 15.0,
+              child: Container(
+                height: 50.0,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  color: Colors.white,
                 ),
-                onChanged: (val) {
-                  setState(() {
-                    searchAddr = val;
-                  });
-                },
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Enter Address',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
+                  ),
+                  onChanged: (val) {
+                    setState(() {
+                      searchAddr = val;
+                    });
+                  },
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: new FloatingActionButton(
-                heroTag: "sos",
-                backgroundColor: Colors.red,
-                onPressed: () {},
-                child: Text("SOS"),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: new FloatingActionButton(
+                  heroTag: "sos",
+                  backgroundColor: Colors.red,
+                  onPressed: () => _sendSos(context),
+                  child: Text("SOS"),
+                ),
               ),
             ),
-          ),
-          Positioned(
-            bottom: 100.0,
-            right: 13.0,
-            child: FloatingActionButton(
-              heroTag: "gps",
-              onPressed: getCurrentLocation,
-              child: Icon(Icons.my_location),
+            Positioned(
+              bottom: 100.0,
+              right: 13.0,
+              child: FloatingActionButton(
+                heroTag: "gps",
+                onPressed: getCurrentLocation,
+                child: Icon(Icons.my_location),
+              ),
             ),
-          ),
-          Positioned(
-            bottom: 180.0,
-            right: 13.0,
-            child: FloatingActionButton(
-              heroTag: "pin",
-              onPressed: _onAddMarkerButtonPressed,
-              child: Icon(Icons.add_location),
+            Positioned(
+              bottom: 180.0,
+              right: 13.0,
+              child: FloatingActionButton(
+                heroTag: "pin",
+                onPressed: _onAddMarkerButtonPressed,
+                child: Icon(Icons.add_location),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
