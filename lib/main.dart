@@ -1,19 +1,40 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 
+import './login_page.dart';
+import './signup_page.dart';
+import './app_drawer.dart';
+import './sos_bottom_sheet.dart';
+import './providers/domain.dart';
+import './providers/token.dart';
 
 void main() => runApp(MyApp());
-
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: MyHomePage(),
+    return MultiProvider(
+      providers: [
+        Provider.value(value: Domain()),
+        Provider.value(value: Token())
+      ],
+      child: MaterialApp(
+        title: "InstaCop",
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.teal,
+          // platform: TargetPlatform.iOS,
+        ),
+        initialRoute: '/login',
+        routes: {
+          '/login': (_) => LoginPage(),
+          '/signup': (_) => SignupPage(),
+          '/map': (_) => MyHomePage(),
+        },
+      ),
     );
   }
 }
@@ -24,7 +45,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   GoogleMapController mapController;
   bool marked = true;
   final Set<Marker> _markers = {};
@@ -36,163 +56,124 @@ class _MyHomePageState extends State<MyHomePage> {
   LatLng lastCameraPosition = indore.target;
   String searchAddr;
 
+  void _sendSos(context) {
+    Scaffold.of(context).showBottomSheet((ctx) => BottomSheet(
+          builder: (c) => SosBottomSheet(),
+          onClosing: () {},
+        ));
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext _ctx) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("InstaCop"),
-          backgroundColor: Colors.blueGrey,
-        ),
-        drawer: Drawer(
-          child: ListView(
-            // Important: Remove any padding from the ListView.
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey,
-                ),
-              ),
-              ListTile(
-                leading: Icon(Icons.history),
-                title: Text('History'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.share),
-                title: Text('Tell a friend'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.security),
-                title: Text('Anonymous Tip'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.help),
-                title: Text('Help and Support'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),ListTile(
-                leading: Icon(Icons.info),
-                title: Text('About'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.lock_open),
-                title: Text('Logout'),
-                onTap: () {
-                  // Update the state of the app.
-                  // ...
-                },
-              ),
-            ],
-          ),
-        ),
-        body: Stack(
+      appBar: AppBar(
+        title: Text("InstaCop"),
+      ),
+      drawer: AppDrawer(),
+      body: Builder(
+        builder: (context) => Stack(
           children: <Widget>[
             GoogleMap(
               markers: _markers,
               onCameraMove: _onCameraMove,
               onMapCreated: onMapCreated,
-              initialCameraPosition:  indore,
+              initialCameraPosition: indore,
             ),
             Positioned(
               top: 30.0,
               right: 15.0,
               left: 15.0,
               child: Container(
-                  height: 50.0,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.0), color: Colors.white),
-                  child: TextField(
-                    decoration: InputDecoration(
-                        hintText: 'Enter Address',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
-                        /*suffixIcon: IconButton(
-                            icon: Icon(Icons.my_location),
-                            onPressed: get_current_location,
-                            iconSize: 30.0)*/),
-                    onChanged: (val) {
-                      setState(() {
-                        searchAddr = val;
-                      });
-                    },
-                  ),
+                height: 50.0,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  color: Colors.white,
                 ),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Enter Address',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.only(left: 15.0, top: 15.0),
+                  ),
+                  onChanged: (val) {
+                    setState(() {
+                      searchAddr = val;
+                    });
+                  },
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Align(
                 alignment: Alignment.bottomRight,
                 child: new FloatingActionButton(
-                  backgroundColor : Colors.red,
-                  onPressed: sos_pressed,
+                  heroTag: "sos",
+                  backgroundColor: Colors.red,
+                  onPressed: () => _sendSos(context),
                   child: Text("SOS"),
                 ),
               ),
             ),
             Positioned(
               bottom: 100.0,
-              right : 13.0,
+              right: 13.0,
               child: FloatingActionButton(
-                onPressed: get_current_location,
-                child : Icon(Icons.my_location),
+                heroTag: "gps",
+                onPressed: getCurrentLocation,
+                child: Icon(Icons.my_location),
               ),
             ),
             Positioned(
               bottom: 180.0,
-              right : 13.0,
+              right: 13.0,
               child: FloatingActionButton(
+                heroTag: "pin",
                 onPressed: _onAddMarkerButtonPressed,
-                child : Icon(Icons.add_location),
+                child: Icon(Icons.add_location),
               ),
             ),
           ],
-        ));
+        ),
+      ),
+    );
   }
 
   searchandNavigate() {
     Geolocator().placemarkFromAddress(searchAddr).then((result) {
-      mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target:
-          LatLng(result[0].position.latitude, result[0].position.longitude),
-          zoom: 10.0)));
+      mapController.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(
+              result[0].position.latitude,
+              result[0].position.longitude,
+            ),
+            zoom: 10.0,
+          ),
+        ),
+      );
     });
   }
 
-  get_current_location() async{
+  getCurrentLocation() async {
     var currentLocation = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
-    debugPrint("Current Location" + currentLocation.toString());
-    mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-      target: LatLng(currentLocation.latitude, currentLocation.longitude),
-      zoom : 20.0,
-    )));
+    // debugPrint("Current Location" + currentLocation.toString());
+    mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(currentLocation.latitude, currentLocation.longitude),
+          zoom: 20.0,
+        ),
+      ),
+    );
   }
 
-  _onCameraMove(CameraPosition position){
+  _onCameraMove(CameraPosition position) {
     lastCameraPosition = position.target;
-    debugPrint(lastCameraPosition.toString());
+    // debugPrint(lastCameraPosition.toString());
   }
-
 
   void onMapCreated(controller) {
     setState(() {
@@ -232,24 +213,23 @@ class _MyHomePageState extends State<MyHomePage> {
   void _onAddMarkerButtonPressed() {
     marked = !marked;
     setState(() {
-      if(!marked){
-        _markers.add(Marker(
-          // This marker id can be anything that uniquely identifies each marker.
-          markerId: MarkerId(lastCameraPosition.toString()),
-          position: lastCameraPosition,
-          infoWindow: InfoWindow(
-            title: 'User Name',
-            snippet: 'Crime Report Here',
+      if (!marked) {
+        _markers.add(
+          Marker(
+            // This marker id can be anything that uniquely identifies each marker.
+            markerId: MarkerId(lastCameraPosition.toString()),
+            position: lastCameraPosition,
+            infoWindow: InfoWindow(
+              title: 'User Name',
+              snippet: 'Crime Report Here',
+            ),
+            icon: BitmapDescriptor.defaultMarkerWithHue(20.0),
           ),
-          icon: BitmapDescriptor.defaultMarkerWithHue(20.0),
-        ));
+        );
       }
-      if(marked){
+      if (marked) {
         _markers.clear();
       }
     });
   }
 }
-
-
-
