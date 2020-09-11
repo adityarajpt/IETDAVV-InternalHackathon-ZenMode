@@ -48,7 +48,6 @@ class _MyHomePageState extends State<MyHomePage> {
   GoogleMapController mapController;
   bool marked = true;
   final Set<Marker> _markers = {};
-
   static final CameraPosition indore = CameraPosition(
     target: LatLng(22.7196, 75.8577),
     zoom: 14.4746,
@@ -181,6 +180,35 @@ class _MyHomePageState extends State<MyHomePage> {
       mapController = controller;
     });
   }
+
+  void sos_pressed(){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Please Confirm"),
+          content: new Text("Do you want to send an SOS signal"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Yes"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: new Text("No"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   void _onAddMarkerButtonPressed() {
     marked = !marked;
